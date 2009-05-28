@@ -21,7 +21,7 @@ class MiteParser
   end
   
   def parse(input)
-    input = input.is_a?(String) ? Shellwords.shellwords(input) : input.dup
+    input = to_shellwords(input.dup)
     output = {}
     
     while token = input.shift
@@ -44,6 +44,19 @@ class MiteParser
     
     @options.find do |opt|
       opt.has?(name)
+    end
+  end
+  
+  def to_shellwords(str)
+    return str unless str.is_a?(String)
+    
+    Shellwords.shellwords(str)
+  rescue ArgumentError => e    
+    case e.message
+    when /^Unmatched (single|double) quote: (.+)/
+      quote = $1 == "single" ? "'" : '"'
+      token = $2.split(/\s/)[0]
+      Shellwords.shellwords(str.sub(%r(#{token}), "#{token}#{quote}"))
     end
   end
 end

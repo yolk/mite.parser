@@ -66,4 +66,27 @@ describe MiteParser do
       :unclaimed => %w(null vorn erstes un zweites u),:project => "P", :service => "S"
     })
   end
+  
+  it "should allow single quote in double quotes" do
+    @parser.parse("#p \"Toy\'s for us\"").should == ({:project => "Toy's for us"})
+    @parser.parse("#p \"Toy's for us\"").should == ({:project => "Toy's for us"})
+    @parser.parse("#p \"Toy's'for us\"").should == ({:project => "Toy's'for us"})
+  end
+  
+  it "should allow double quote in single quotes" do
+    @parser.parse("#p 'Toy\"s for us'").should == ({:project => "Toy\"s for us"})
+    @parser.parse("#p 'Toy\"s\"for us'").should == ({:project => "Toy\"s\"for us"})
+  end
+  
+  it "should autocorrect unclosed single quote" do
+    @parser.parse("#p 'Toy s for us").should == ({:project => "Toy", :unclaimed => %w(s for us)})
+    @parser.parse("#p 'Toy s for #l us").should == ({:project => "Toy", :unclaimed => %w(s for), :service => "us"})
+    @parser.parse("#p Toy's for us").should == ({:project => "Toys", :unclaimed => %w(for us)})
+  end
+  
+  it "should autocorrect unclosed double quote" do
+    @parser.parse("#p \"Toy s for us").should == ({:project => "Toy", :unclaimed => %w(s for us)})
+    @parser.parse("#p \"Toy s for #l us").should == ({:project => "Toy", :unclaimed => %w(s for), :service => "us"})
+    @parser.parse("#p Toy\"s for us").should == ({:project => "Toys", :unclaimed => %w(for us)})
+  end
 end
