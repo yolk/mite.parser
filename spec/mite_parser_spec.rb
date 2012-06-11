@@ -78,15 +78,12 @@ describe MiteParser do
     @parser.parse("#p 'Toy\"s\"for us'").should == ({:project => "Toy\"s\"for us"})
   end
   
-  it "should autocorrect unclosed single quote" do
-    @parser.parse("#p 'Toy s for us").should == ({:project => "Toy", :unclaimed => %w(s for us)})
-    @parser.parse("#p 'Toy s for #l us").should == ({:project => "Toy", :unclaimed => %w(s for), :service => "us"})
-    @parser.parse("#p Toy's for us").should == ({:project => "Toys", :unclaimed => %w(for us)})
-  end
-  
-  it "should autocorrect unclosed double quote" do
-    @parser.parse("#p \"Toy s for us").should == ({:project => "Toy", :unclaimed => %w(s for us)})
-    @parser.parse("#p \"Toy s for #l us").should == ({:project => "Toy", :unclaimed => %w(s for), :service => "us"})
-    @parser.parse("#p Toy\"s for us").should == ({:project => "Toys", :unclaimed => %w(for us)})
+  it "should autocorrect unclosed single quote or single quote as apostroph" do
+    @parser.parse("#p \"Toy's for us\"").should == ({:project => "Toy's for us"})
+    @parser.parse("#p Toy's for us").should == ({:project => "Toy's", :unclaimed => %w(for us)})
+    @parser.parse("#p 'Toy s for us").should == ({:project => "'Toy", :unclaimed => %w(s for us)})
+    @parser.parse("#p 'Toy s for #l us").should == ({:project => "'Toy", :unclaimed => %w(s for), :service => "us"})
+    @parser.parse("#p Toy's for us").should == ({:project => "Toy's", :unclaimed => %w(for us)})
+    @parser.parse("#p Project1 i wasn't aware of this issue").should == ({:project => "Project1", :unclaimed => %w(i wasn't aware of this issue)})
   end
 end

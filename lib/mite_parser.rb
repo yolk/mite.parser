@@ -54,9 +54,13 @@ class MiteParser
   rescue ArgumentError => e    
     case e.message
     when /^Unmatched (single|double) quote: (.+)/
-      quote = $1 == "single" ? "'" : '"'
-      token = $2.split(/\s/)[0]
-      Shellwords.shellwords(str.sub(%r(#{token}), "#{token}#{quote}"))
+      if str.split(/'/).size == 2
+        str.sub!(/'/, "___SINGLE_QUOTE___")
+      end
+      
+      Shellwords.shellwords(str).map do |word|
+        word.gsub("___SINGLE_QUOTE___", "'")
+      end
     end
   end
 end
